@@ -25,6 +25,12 @@
 #  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #  POSSIBILITY OF SUCH DAMAGE.
 #
+if(OTBR_MUDMANAGER)
+  set(OT_MUDTHREAD ON CACHE BOOL "Enables MUDThread on Opentrhead" FORCE)
+endif()
+if(CONFIG_MUD_URL)
+  set(OT_MUD_URL ${CONFIG_MUD_URL} CACHE STRING "Sets mud url")
+endif()
 
 add_subdirectory(openthread)
 if(OTBR_REST)
