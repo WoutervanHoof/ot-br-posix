@@ -60,6 +60,9 @@
 #if OTBR_ENABLE_VENDOR_SERVER
 #include "agent/vendor.hpp"
 #endif
+#if OTBR_ENABLE_MUD_MANAGER
+#include "mud_forwarder/mud_forwarder.hpp"
+#endif
 #include "utils/infra_link_selector.hpp"
 
 namespace otbr {
@@ -299,7 +302,9 @@ private:
 #if OTBR_ENABLE_VENDOR_SERVER
     std::shared_ptr<vendor::VendorServer> mVendorServer;
 #endif
-
+#if OTBR_ENABLE_MUD_MANAGER
+    std::unique_ptr<mud_forwarder::mud_forwarder> mMudForwarder;
+#endif
     static std::atomic_bool sShouldTerminate;
 };
 
