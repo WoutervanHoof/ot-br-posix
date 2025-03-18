@@ -243,7 +243,7 @@ void Application::CreateRcpMode(const std::string &aRestListenAddress, int aRest
     mVendorServer = vendor::VendorServer::newInstance(*this);
 #endif
 #if OTBR_ENABLE_MUD_MANAGER
-    mMudForwarder = MakeUnique<otbr::MUD::MudForwarder>(*mHost);
+    mMudForwarder = MakeUnique<MUD::MudForwarder>(*mHost);
 #endif
 
     OT_UNUSED_VARIABLE(aRestListenAddress);

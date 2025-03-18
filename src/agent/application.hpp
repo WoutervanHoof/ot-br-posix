@@ -303,7 +303,7 @@ private:
     std::shared_ptr<vendor::VendorServer> mVendorServer;
 #endif
 #if OTBR_ENABLE_MUD_MANAGER
-    std::unique_ptr<otbr::MUD::MudForwarder> mMudForwarder;
+    std::unique_ptr<MUD::MudForwarder> mMudForwarder;
 #endif
     static std::atomic_bool sShouldTerminate;
 };
