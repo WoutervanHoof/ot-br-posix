@@ -116,9 +116,11 @@ otbr_install()
     fi
 
     if with MUD_MANAGER; then
+        otbr_options+=("-DOTBR_MUD_MANAGER=ON")
         otbr_options+=("-DOT_MUDTHREAD=ON")
         otbr_options+=("-DOT_MUD_URL='https://mud.verano.nl/example/mud.json'")
     else
+        otbr_options+=("-DOTBR_MUD_MANAGER=OFF")
         otbr_options+=("-DOT_MUDTHREAD=OFF")
     fi
 

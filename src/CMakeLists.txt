@@ -63,3 +63,7 @@ endif()
 if (OTBR_BACKBONE_ROUTER)
     add_subdirectory(backbone_router)
 endif()
+
+if (OTBR_MUD_MANAGER)
+    add_subdirectory(mud_forwarder)
+endif()
