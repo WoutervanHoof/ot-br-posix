@@ -44,7 +44,7 @@
 
 namespace otbr {
 namespace MUD {
-    class mud_forwarder
+    class MudForwarder
     {
     public:
         
@@ -53,7 +53,7 @@ namespace MUD {
          * 
          * @param[in]   aInstance   The OpenThread Instance.
          */
-        mud_forwarder(otbr::Ncp::RcpHost &aHost);
+        MudForwarder(otbr::Ncp::RcpHost &aHost);
 
         otError Init();
         otError Deinit();

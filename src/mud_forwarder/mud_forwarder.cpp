@@ -43,7 +43,7 @@
 namespace otbr {
 namespace MUD {
 
-mud_forwarder::mud_forwarder(otbr::Ncp::RcpHost &aHost)
+MudForwarder::MudForwarder(otbr::Ncp::RcpHost &aHost)
     : mHost(aHost)
 {
     // Initialize a socket
@@ -52,7 +52,7 @@ mud_forwarder::mud_forwarder(otbr::Ncp::RcpHost &aHost)
     memset(&mSocket, 0, sizeof(mSocket));
 }
 
-otError mud_forwarder::Init()
+otError MudForwarder::Init()
 {
     otError error;
     otSockAddr  sockaddr;
@@ -71,17 +71,17 @@ exit:
     return error;
 }
 
-otError mud_forwarder::Deinit()
+otError MudForwarder::Deinit()
 {
     return otUdpClose(mHost.GetInstance(), &mSocket);
 }
 
-void mud_forwarder::HandleMUDNewDeviceMessage(void *aContext, otMessage *aMessage, const otMessageInfo *aMessageInfo)
+void MudForwarder::HandleMUDNewDeviceMessage(void *aContext, otMessage *aMessage, const otMessageInfo *aMessageInfo)
 {
-    static_cast<mud_forwarder *>(aContext)->HandleMUDNewDeviceMessage(aMessage, aMessageInfo);
+    static_cast<MudForwarder *>(aContext)->HandleMUDNewDeviceMessage(aMessage, aMessageInfo);
 }
 
-void mud_forwarder::HandleMUDNewDeviceMessage(otMessage *aMessage, const otMessageInfo *aMessageInfo)
+void MudForwarder::HandleMUDNewDeviceMessage(otMessage *aMessage, const otMessageInfo *aMessageInfo)
 {
     // TODO: not just log, actually do smt with the message
     char buf[1500];
