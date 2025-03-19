@@ -63,7 +63,6 @@ otError MudForwarder::Init()
     otServiceConfig config;
     std::string serviceName("MUD_Forwarder");
     const otNetifAddress *addresses;
-    size_t serverDataSize;
     size_t ip6StringSize = OT_IP6_ADDRESS_STRING_SIZE;
 
     // Start listening on udp port 1234
@@ -92,8 +91,6 @@ otError MudForwarder::Init()
         // A meshlocal, non RLOC address should be reachable by all devices, regardless of topology changes
         if (addr->mMeshLocal && !addr->mRloc) {
             assert(sizeof(config.mServerConfig.mServerData) < OT_IP6_ADDRESS_STRING_SIZE);
-            serverDataSize = sizeof(config.mServerConfig.mServerData);
-
             otIp6AddressToString(&(addr->mAddress), reinterpret_cast<char*>(config.mServerConfig.mServerData), ip6StringSize);
             // TODO: check if this is changed to the actual number of bytes written
             config.mServerConfig.mServerDataLength = ip6StringSize;
