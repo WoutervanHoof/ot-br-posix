@@ -47,7 +47,7 @@ MudForwarder::MudForwarder(otbr::Ncp::RcpHost &aHost)
     : mHost(aHost)
 {
     // Initialize a socket
-    otbrLogDebug("Starting MUD Forwarder");
+    otbrLogInfo("Starting MUD Forwarder");
 
     memset(&mSocket, 0, sizeof(mSocket));
 }
@@ -59,13 +59,17 @@ otError MudForwarder::Init()
     otNetifIdentifier netif = OT_NETIF_THREAD;
     const char *address_string = "::";
 
+    otbrLogInfo("Initializing MUD Forwarder");
     VerifyOrExit(!otUdpIsOpen(mHost.GetInstance(), &mSocket), error = OT_ERROR_ALREADY);
     SuccessOrExit(error = otUdpOpen(mHost.GetInstance(), &mSocket, HandleMUDNewDeviceMessage, this));
     SuccessOrExit(error = otIp6AddressFromString(address_string, &sockaddr.mAddress));
 
     sockaddr.mPort = 1234;
 
+    char new_address[100];
+    otIp6AddressToString(&sockaddr.mAddress, new_address, 100);
     error = otUdpBind(mHost.GetInstance(), &mSocket, &sockaddr, netif);
+    otbrLogInfo("Listening on port 1234 with address %s", new_address);
 
 exit:
     return error;
@@ -75,7 +79,7 @@ exit:
 
 otError MudForwarder::Deinit()
 {
-    otbrLogDebug("Deinitializig MUD Forwarder..");
+    otbrLogInfo("Deinitializig MUD Forwarder..");
     return otUdpClose(mHost.GetInstance(), &mSocket);
 }
 
