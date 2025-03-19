@@ -75,7 +75,7 @@ exit:
 
 otError MudForwarder::Deinit()
 {
-    otbrLogDebug("Deinitializig MUD Forwarder..")
+    otbrLogDebug("Deinitializig MUD Forwarder..");
     return otUdpClose(mHost.GetInstance(), &mSocket);
 }
 
