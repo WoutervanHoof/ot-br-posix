@@ -103,7 +103,9 @@ otError MudForwarder::Init()
     config.mServerConfig.mStable = true;
 
     SuccessOrExit(error = otServerAddService(mHost.GetInstance(), &config));
-    error = otServerRegister(mHost.GetInstance());
+    SuccessOrExit(error = otServerRegister(mHost.GetInstance()));
+
+    otbrLogInfo("Sucessfully registered service");
 
 exit:
     return error;
