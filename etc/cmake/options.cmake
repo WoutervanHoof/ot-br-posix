@@ -36,9 +36,9 @@ if (OTBR_BORDER_AGENT)
     target_compile_definitions(otbr-config INTERFACE OTBR_ENABLE_BORDER_AGENT=1)
 endif()
 
-option(OTBR_MUD_MANAGER "Enable MUD forwarder Agent" OFF)
-if (OTBR_MUD_MANAGER)
-    target_compile_definitions(otbr-config INTERFACE OTBR_ENABLE_MUD_MANAGER=1)
+option(OTBR_MUD_FORWARDER "Enable MUD forwarder Agent" OFF)
+if (OTBR_MUD_FORWARDER)
+    target_compile_definitions(otbr-config INTERFACE OTBR_ENABLE_MUD_FORWARDER=1)
 endif()
 
 option(OTBR_BACKBONE_ROUTER "Enable Backbone Router" OFF)
