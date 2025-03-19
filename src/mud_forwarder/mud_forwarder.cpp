@@ -36,9 +36,11 @@
 
 #include "mud_forwarder/mud_forwarder.hpp"
 
+#include <openthread/server.h>
 #include <common/logging.hpp>
 #include <common/code_utils.hpp>
 #include <string.h>
+
 
 namespace otbr {
 namespace MUD {
@@ -58,7 +60,13 @@ otError MudForwarder::Init()
     otSockAddr  sockaddr;
     otNetifIdentifier netif = OT_NETIF_THREAD;
     const char *address_string = "::";
+    otServiceConfig config;
+    std::string serviceName("MUD_Forwarder");
+    const otNetifAddress *addresses;
+    size_t serverDataSize;
+    size_t ip6StringSize = OT_IP6_ADDRESS_STRING_SIZE;
 
+    // Start listening on udp port 1234
     otbrLogInfo("Initializing MUD Forwarder");
     VerifyOrExit(!otUdpIsOpen(mHost.GetInstance(), &mSocket), error = OT_ERROR_ALREADY);
     SuccessOrExit(error = otUdpOpen(mHost.GetInstance(), &mSocket, HandleMUDNewDeviceMessage, this));
@@ -71,11 +79,35 @@ otError MudForwarder::Init()
     error = otUdpBind(mHost.GetInstance(), &mSocket, &sockaddr, netif);
     otbrLogInfo("Listening on port 1234 with address %s", new_address);
 
+    // Advertize service in network
+    otbrLogInfo("Advertizing service...");
+    config.mEnterpriseNumber = 44970; // OpenThread IANA enterprise number
+    
+    sprintf(reinterpret_cast<char*>(config.mServiceData), serviceName.c_str());
+    config.mServiceDataLength = serviceName.length() + 1;
+
+    addresses = otIp6GetUnicastAddresses(mHost.GetInstance());
+    for (const otNetifAddress *addr = addresses; addr; addr = addr->mNext)
+    {
+        // A meshlocal, non RLOC address should be reachable by all devices, regardless of topology changes
+        if (addr->mMeshLocal && !addr->mRloc) {
+            assert(sizeof(config.mServerConfig.mServerData) < OT_IP6_ADDRESS_STRING_SIZE);
+            serverDataSize = sizeof(config.mServerConfig.mServerData);
+
+            otIp6AddressToString(&(addr->mAddress), reinterpret_cast<char*>(config.mServerConfig.mServerData), ip6StringSize);
+            // TODO: check if this is changed to the actual number of bytes written
+            config.mServerConfig.mServerDataLength = ip6StringSize;
+        }
+    }
+
+    config.mServerConfig.mStable = true;
+
+    SuccessOrExit(error = otServerAddService(mHost.GetInstance(), &config));
+    error = otServerRegister(mHost.GetInstance());
+
 exit:
     return error;
 }
-
-
 
 otError MudForwarder::Deinit()
 {
