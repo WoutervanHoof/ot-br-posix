@@ -61,7 +61,7 @@ otError MudForwarder::Init()
 
     VerifyOrExit(!otUdpIsOpen(mHost.GetInstance(), &mSocket), error = OT_ERROR_ALREADY);
     SuccessOrExit(error = otUdpOpen(mHost.GetInstance(), &mSocket, HandleMUDNewDeviceMessage, this));
-    SuccessOrExit(error = otIp6AddressFromString(&address_string, &sockaddr.mAddress));
+    SuccessOrExit(error = otIp6AddressFromString(address_string, &sockaddr.mAddress));
 
     sockaddr.mPort = 1234;
 
