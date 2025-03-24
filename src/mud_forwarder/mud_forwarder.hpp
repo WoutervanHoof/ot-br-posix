@@ -63,6 +63,8 @@ namespace MUD {
         otError RegisterService();
         static void HandleMUDNewDeviceMessage(void *aContext, otMessage *aMessage, const otMessageInfo *aMessageInfo);
         void HandleMUDNewDeviceMessage(otMessage *aMessage, const otMessageInfo *aMessageInfo);
+        void HandleThreadStateChanged(otChangedFlags aFlags);
+
         otUdpSocket mSocket;
         otbr::Ncp::RcpHost &mHost;
     };

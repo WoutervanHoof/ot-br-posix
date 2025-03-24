@@ -60,7 +60,9 @@ otError MudForwarder::Init()
 
     SuccessOrExit(error = MudForwarder::InitSocket());
 
-    error = MudForwarder::RegisterService();
+    mHost.AddThreadStateChangedCallback([this](otChangedFlags aFlags) { HandleThreadStateChanged(aFlags);});
+
+    // error = MudForwarder::RegisterService();
 
 exit:
     return error;
@@ -118,15 +120,26 @@ otError MudForwarder::RegisterService()
             otIp6AddressToString(&(addr->mAddress), reinterpret_cast<char*>(config.mServerConfig.mServerData), ip6StringSize);
             // TODO: check if this is changed to the actual number of bytes written
             config.mServerConfig.mServerDataLength = ip6StringSize;
+
+            SuccessOrExit(error = otServerAddService(mHost.GetInstance(), &config));
+            SuccessOrExit(error = otServerRegister(mHost.GetInstance()));
+            otbrLogInfo("Sucessfully registered service");
+            ExitNow();
         }
     }
 
-    SuccessOrExit(error = otServerAddService(mHost.GetInstance(), &config));
-    SuccessOrExit(error = otServerRegister(mHost.GetInstance()));
-    otbrLogInfo("Sucessfully registered service");
-
 exit:
     return error;
+}
+
+void MudForwarder::HandleThreadStateChanged(otChangedFlags aFlags)
+{
+    otError error;
+
+    if (aFlags & (OT_CHANGED_IP6_ADDRESS_ADDED | OT_CHANGED_IP6_ADDRESS_REMOVED)) {
+        error = RegisterService();
+        otbrLogInfo("Updated service registration. response: %d", error);
+    }
 }
 
 otError MudForwarder::Deinit()
