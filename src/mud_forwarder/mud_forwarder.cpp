@@ -57,31 +57,52 @@ MudForwarder::MudForwarder(otbr::Ncp::RcpHost &aHost)
 otError MudForwarder::Init()
 {
     otError error;
-    otSockAddr  sockaddr;
-    otNetifIdentifier netif = OT_NETIF_THREAD;
-    const char *address_string = "::";
-    otServiceConfig config;
-    std::string serviceName("MUD_Forwarder");
-    const otNetifAddress *addresses;
-    size_t ip6StringSize = OT_IP6_ADDRESS_STRING_SIZE;
-    char new_address[100];
+
+    SuccessOrExit(error = MudForwarder::InitSocket());
+
+    error = MudForwarder::RegisterService();
+
+exit:
+    return error;
+}
+
+otError MudForwarder::InitSocket()
+{
+    otError                 error = OT_ERROR_NONE;
+    otSockAddr              sockaddr;
+    const otNetifIdentifier netif = OT_NETIF_THREAD;
+    std::string             address_string("::");
 
     // Start listening on udp port 1234
     otbrLogInfo("Initializing MUD Forwarder");
-    VerifyOrExit(!otUdpIsOpen(mHost.GetInstance(), &mSocket), error = OT_ERROR_ALREADY);
-    SuccessOrExit(error = otUdpOpen(mHost.GetInstance(), &mSocket, HandleMUDNewDeviceMessage, this));
-    SuccessOrExit(error = otIp6AddressFromString(address_string, &sockaddr.mAddress));
 
     sockaddr.mPort = 1234;
-
-    otIp6AddressToString(&sockaddr.mAddress, new_address, 100);
+    VerifyOrExit(!otUdpIsOpen(mHost.GetInstance(), &mSocket), error = OT_ERROR_INVALID_STATE);
+    SuccessOrExit(error = otUdpOpen(mHost.GetInstance(), &mSocket, HandleMUDNewDeviceMessage, this));
+    SuccessOrExit(error = otIp6AddressFromString(address_string.c_str(), &sockaddr.mAddress));
     error = otUdpBind(mHost.GetInstance(), &mSocket, &sockaddr, netif);
-    otbrLogInfo("Listening on port 1234 with address %s", new_address);
+
+exit:
+    return error;
+}
+
+otError MudForwarder::RegisterService()
+{
+    otError                 error = OT_ERROR_NONE;
+    const otNetifAddress   *addresses;
+    const size_t            ip6StringSize = OT_IP6_ADDRESS_STRING_SIZE;
+    otServiceConfig         config;
+    std::string             serviceName("MUD_Forwarder");
+    otbr::Ip6Address        address;
+
+    char tempbuffer[OT_IP6_ADDRESS_SIZE];
 
     // Advertize service in network
     otbrLogInfo("Advertizing service...");
+
+    // Set config ServiceData
     config.mEnterpriseNumber = 44970; // OpenThread IANA enterprise number
-    
+    config.mServerConfig.mStable = true;
     sprintf(reinterpret_cast<char*>(config.mServiceData), serviceName.c_str());
     config.mServiceDataLength = serviceName.length() + 1;
 
@@ -89,19 +110,19 @@ otError MudForwarder::Init()
     for (const otNetifAddress *addr = addresses; addr; addr = addr->mNext)
     {
         // A meshlocal, non RLOC address should be reachable by all devices, regardless of topology changes
+        otIp6AddressToString(&(addr->mAddress), tempbuffer, OT_IP6_ADDRESS_SIZE);
+        otbrLogInfo("checking address %s", tempbuffer);
         if (addr->mMeshLocal && !addr->mRloc) {
-            assert(sizeof(config.mServerConfig.mServerData) < OT_IP6_ADDRESS_STRING_SIZE);
+            otbrLogInfo("valid address found!");
+            assert(sizeof(config.mServerConfig.mServerData) > OT_IP6_ADDRESS_STRING_SIZE);
             otIp6AddressToString(&(addr->mAddress), reinterpret_cast<char*>(config.mServerConfig.mServerData), ip6StringSize);
             // TODO: check if this is changed to the actual number of bytes written
             config.mServerConfig.mServerDataLength = ip6StringSize;
         }
     }
 
-    config.mServerConfig.mStable = true;
-
     SuccessOrExit(error = otServerAddService(mHost.GetInstance(), &config));
     SuccessOrExit(error = otServerRegister(mHost.GetInstance()));
-
     otbrLogInfo("Sucessfully registered service");
 
 exit:

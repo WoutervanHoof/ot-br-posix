@@ -59,6 +59,8 @@ namespace MUD {
         otError Deinit();
     
     private:
+        otError InitSocket();
+        otError RegisterService();
         static void HandleMUDNewDeviceMessage(void *aContext, otMessage *aMessage, const otMessageInfo *aMessageInfo);
         void HandleMUDNewDeviceMessage(otMessage *aMessage, const otMessageInfo *aMessageInfo);
         otUdpSocket mSocket;
