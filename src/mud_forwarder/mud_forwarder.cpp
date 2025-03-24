@@ -64,6 +64,7 @@ otError MudForwarder::Init()
     std::string serviceName("MUD_Forwarder");
     const otNetifAddress *addresses;
     size_t ip6StringSize = OT_IP6_ADDRESS_STRING_SIZE;
+    char new_address[100];
 
     // Start listening on udp port 1234
     otbrLogInfo("Initializing MUD Forwarder");
@@ -73,7 +74,6 @@ otError MudForwarder::Init()
 
     sockaddr.mPort = 1234;
 
-    char new_address[100];
     otIp6AddressToString(&sockaddr.mAddress, new_address, 100);
     error = otUdpBind(mHost.GetInstance(), &mSocket, &sockaddr, netif);
     otbrLogInfo("Listening on port 1234 with address %s", new_address);
