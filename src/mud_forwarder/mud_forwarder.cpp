@@ -183,6 +183,9 @@ void MudForwarder::HandleMUDNewDeviceMessage(otMessage *aMessage, const otMessag
     const Tlv      *mudUrl;
     const Tlv      *mudChildIP;
 
+    char            mudUrlString[50];
+    char            mudIPString[50];
+
     memset(buf, '\0', buflen);
     otbrLogInfo("%d bytes from ", otMessageGetLength(aMessage) - otMessageGetOffset(aMessage));
 
@@ -199,8 +202,14 @@ void MudForwarder::HandleMUDNewDeviceMessage(otMessage *aMessage, const otMessag
     mudUrl = FindTlv(OT_MUD_FORWARD_TLV_MUD_URL, buf, length);
     mudChildIP = FindTlv(OT_MUD_FORWARD_TLV_DEVICE_IP, buf, length);
 
-    otbrLogInfo("mud url: %s", mudUrl->GetValue());
-    otbrLogInfo("mud child ip: %s", mudChildIP->GetValue());
+    memcpy(mudUrlString, mudUrl->GetValue(), mudUrl->GetLength());
+    memcpy(mudIPString, mudChildIP->GetValue(), mudChildIP->GetLength());
+
+    mudUrlString[mudUrl->GetLength()] = '\0';
+    mudIPString[mudChildIP->GetLength()] = '\0';
+
+    otbrLogInfo("mud url: %s", mudUrlString);
+    otbrLogInfo("mud child ip: %s", mudIPString);
 }
 
 } // Namespace MUD
