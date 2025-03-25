@@ -117,8 +117,12 @@ otError MudForwarder::RegisterService()
         if (addr->mMeshLocal && !addr->mRloc) {
             address = Ip6Address(addr->mAddress);
             otbrLogInfo("valid address found! %s", address.ToString().c_str());
-            memcpy(config.mServerConfig.mServerData, address.m8, sizeof(address.m8));
-            config.mServerConfig.mServerDataLength = sizeof(address.m8);
+            
+            address.CopyTo(reinterpret_cast<in6_addr &>(config.mServerConfig.mServerData));
+            // memcpy(config.mServerConfig.mServerData, address.m8, sizeof(address.m8));
+            config.mServerConfig.mServerDataLength = sizeof(address.m8) + 1;
+            config.mServerConfig.mServerData[sizeof(address.m8)] = '\0';
+            otbrLogInfo("serverdata: %s", reinterpret_cast<char *>(config.mServerConfig.mServerData));
 
             SuccessOrExit(error = otServerAddService(mHost.GetInstance(), &config));
             SuccessOrExit(error = otServerRegister(mHost.GetInstance()));
