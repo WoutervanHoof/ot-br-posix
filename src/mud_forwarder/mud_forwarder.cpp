@@ -158,11 +158,12 @@ void MudForwarder::HandleMUDNewDeviceMessage(void *aContext, otMessage *aMessage
 void MudForwarder::HandleMUDNewDeviceMessage(otMessage *aMessage, const otMessageInfo *aMessageInfo)
 {
     // TODO: not just log, actually do smt with the message
-    const size_t buflen = 1500;
-    char buf[buflen];
+    const size_t    buflen      = 1500;
+    char            buf[buflen];
+    uint16_t        length;
+    std::string     mudUrl;
+    
     memset(buf, '\0', buflen);
-    uint16_t  length;
-
     otbrLogInfo("%d bytes from ", otMessageGetLength(aMessage) - otMessageGetOffset(aMessage));
 
     char string[OT_IP6_ADDRESS_STRING_SIZE];
@@ -174,6 +175,8 @@ void MudForwarder::HandleMUDNewDeviceMessage(otMessage *aMessage, const otMessag
     length      = otMessageRead(aMessage, otMessageGetOffset(aMessage), buf, sizeof(buf) - 1);
     buf[length] = '\0';
     otbrLogInfo("read %d bytes from message", length);
+
+    
 
     otbrLogInfo("%s", buf);
 }
