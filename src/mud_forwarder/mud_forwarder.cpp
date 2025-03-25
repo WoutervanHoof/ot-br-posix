@@ -181,10 +181,10 @@ void MudForwarder::HandleMUDNewDeviceMessage(otMessage *aMessage, const otMessag
     u_int8_t        buf[buflen];
     uint16_t        length;
     const Tlv      *mudUrl;
-    const Tlv      *mudChildIP;
+    // const Tlv      *mudChildIP;
 
     char            mudUrlString[50];
-    char            mudIPString[50];
+    // char            mudIPString[50];
 
     memset(buf, '\0', buflen);
     otbrLogInfo("%d bytes from ", otMessageGetLength(aMessage) - otMessageGetOffset(aMessage));
@@ -202,7 +202,7 @@ void MudForwarder::HandleMUDNewDeviceMessage(otMessage *aMessage, const otMessag
     otbrLogInfo("buffer: %s", buf);
 
     mudUrl = FindTlv(OT_MUD_FORWARD_TLV_MUD_URL, buf, length);
-    mudChildIP = FindTlv(OT_MUD_FORWARD_TLV_DEVICE_IP, buf, length);
+    // mudChildIP = FindTlv(OT_MUD_FORWARD_TLV_DEVICE_IP, buf, length);
 
     otbrLogInfo("read mud url tlv with lenght %d", mudUrl->GetLength());
 
