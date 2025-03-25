@@ -115,11 +115,10 @@ otError MudForwarder::RegisterService()
         otIp6AddressToString(&(addr->mAddress), tempbuffer, OT_IP6_ADDRESS_SIZE);
         otbrLogInfo("checking address %s", tempbuffer);
         if (addr->mMeshLocal && !addr->mRloc) {
-            otbrLogInfo("valid address found!");
-            assert(sizeof(config.mServerConfig.mServerData) > OT_IP6_ADDRESS_STRING_SIZE);
-            otIp6AddressToString(&(addr->mAddress), reinterpret_cast<char*>(config.mServerConfig.mServerData), ip6StringSize);
-            // TODO: check if this is changed to the actual number of bytes written
-            config.mServerConfig.mServerDataLength = ip6StringSize;
+            address = Ip6Address(addr->mAddress);
+            otbrLogInfo("valid address found! %s", address.ToString().c_str());
+            memcpy(config.mServerConfig.mServerData, address.m8, sizeof(address.m8));
+            config.mServerConfig.mServerDataLength = sizeof(address.m8);
 
             SuccessOrExit(error = otServerAddService(mHost.GetInstance(), &config));
             SuccessOrExit(error = otServerRegister(mHost.GetInstance()));
