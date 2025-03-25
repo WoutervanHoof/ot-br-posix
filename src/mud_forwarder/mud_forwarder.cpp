@@ -199,6 +199,8 @@ void MudForwarder::HandleMUDNewDeviceMessage(otMessage *aMessage, const otMessag
     buf[length] = '\0';
     otbrLogInfo("read %d bytes from message", length);
 
+    otbrLogInfo("buffer: %s", buf);
+
     mudUrl = FindTlv(OT_MUD_FORWARD_TLV_MUD_URL, buf, length);
     mudChildIP = FindTlv(OT_MUD_FORWARD_TLV_DEVICE_IP, buf, length);
 
