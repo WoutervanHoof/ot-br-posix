@@ -40,6 +40,8 @@
 #include <common/logging.hpp>
 #include <common/code_utils.hpp>
 #include <string.h>
+#include <common/tlv.hpp>
+#include <openthread/mud.h>
 
 
 namespace otbr {
@@ -155,14 +157,32 @@ void MudForwarder::HandleMUDNewDeviceMessage(void *aContext, otMessage *aMessage
     static_cast<MudForwarder *>(aContext)->HandleMUDNewDeviceMessage(aMessage, aMessageInfo);
 }
 
+const Tlv *FindTlv(uint8_t aTlvType, const uint8_t *aTlvs, int aTlvsSize)
+{
+    const Tlv *result = nullptr;
+
+    for (const Tlv *tlv = reinterpret_cast<const Tlv *>(aTlvs);
+         reinterpret_cast<const uint8_t *>(tlv) + sizeof(Tlv) < aTlvs + aTlvsSize; tlv = tlv->GetNext())
+    {
+        if (tlv->GetType() == aTlvType)
+        {
+            ExitNow(result = tlv);
+        }
+    }
+
+exit:
+    return result;
+}
+
 void MudForwarder::HandleMUDNewDeviceMessage(otMessage *aMessage, const otMessageInfo *aMessageInfo)
 {
     // TODO: not just log, actually do smt with the message
     const size_t    buflen      = 1500;
-    char            buf[buflen];
+    u_int8_t        buf[buflen];
     uint16_t        length;
-    std::string     mudUrl;
-    
+    const Tlv      *mudUrl;
+    const Tlv      *mudChildIP;
+
     memset(buf, '\0', buflen);
     otbrLogInfo("%d bytes from ", otMessageGetLength(aMessage) - otMessageGetOffset(aMessage));
 
@@ -176,9 +196,11 @@ void MudForwarder::HandleMUDNewDeviceMessage(otMessage *aMessage, const otMessag
     buf[length] = '\0';
     otbrLogInfo("read %d bytes from message", length);
 
-    
+    mudUrl = FindTlv(OT_MUD_FORWARD_TLV_MUD_URL, buf, length);
+    mudChildIP = FindTlv(OT_MUD_FORWARD_TLV_DEVICE_IP, buf, length);
 
-    otbrLogInfo("%s", buf);
+    otbrLogInfo("mud url: %s", mudUrl->GetValue());
+    otbrLogInfo("mud child ip: %s", mudChildIP->GetValue());
 }
 
 } // Namespace MUD
