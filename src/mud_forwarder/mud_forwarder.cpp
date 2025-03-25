@@ -92,7 +92,7 @@ otError MudForwarder::RegisterService()
 {
     otError                 error = OT_ERROR_NONE;
     const otNetifAddress   *addresses;
-    const size_t            ip6StringSize = OT_IP6_ADDRESS_STRING_SIZE;
+    // const size_t            ip6StringSize = OT_IP6_ADDRESS_STRING_SIZE;
     otServiceConfig         config;
     std::string             serviceName("MUD_Forwarder");
     otbr::Ip6Address        address;
@@ -112,7 +112,7 @@ otError MudForwarder::RegisterService()
     for (const otNetifAddress *addr = addresses; addr; addr = addr->mNext)
     {
         // A meshlocal, non RLOC address should be reachable by all devices, regardless of topology changes
-        otIp6AddressToString(&(addr->mAddress), tempbuffer, OT_IP6_ADDRESS_SIZE);
+        otIp6AddressToString(&(addr->mAddress), tempbuffer, OT_IP6_ADDRESS_STRING_SIZE);
         otbrLogInfo("checking address %s", tempbuffer);
         if (addr->mMeshLocal && !addr->mRloc) {
             address = Ip6Address(addr->mAddress);
