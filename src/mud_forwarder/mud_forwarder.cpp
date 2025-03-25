@@ -121,15 +121,11 @@ otError MudForwarder::RegisterService()
             config.mServerConfig.mServerData[sizeof(address.m8)] = '\0';
             config.mServerConfig.mServerDataLength = sizeof(address.m8) + 1;
             
-            // address.CopyTo(reinterpret_cast<in6_addr &>(config.mServerConfig.mServerData));
-            // memcpy(config.mServerConfig.mServerData, address.m8, sizeof(address.m8));
-            // config.mServerConfig.mServerDataLength = sizeof(address.m8) + 1;
-            // config.mServerConfig.mServerData[sizeof(address.m8)] = '\0';
-            otbrLogInfo("serverdata: %s", reinterpret_cast<char *>(config.mServerConfig.mServerData));
-
             SuccessOrExit(error = otServerAddService(mHost.GetInstance(), &config));
             SuccessOrExit(error = otServerRegister(mHost.GetInstance()));
             otbrLogInfo("Sucessfully registered service");
+            otbrLogInfo("serverdata: %s", reinterpret_cast<char *>(config.mServerConfig.mServerData));
+            
             ExitNow();
         }
     }
