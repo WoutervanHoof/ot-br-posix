@@ -41,7 +41,6 @@
 #include <openthread/udp.h>
 #include <openthread/error.h>
 
-
 namespace otbr {
 namespace MUD {
     class MudForwarder
@@ -72,6 +71,5 @@ namespace MUD {
 } // Namespace MUD
 
 } // Namespace otbr
-
 
 #endif // OTBR_MUD_FORWARDER_HPP_
