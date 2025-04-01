@@ -118,7 +118,7 @@ otbr_install()
     if with MUD_FORWARDER; then
         otbr_options+=("-DOTBR_MUD_FORWARDER=ON")
         otbr_options+=("-DOT_MUDTHREAD=ON")
-        otbr_options+=("-DOT_MUD_URL='https://mud.verano.nl/example/mud.json'")
+        otbr_options+=("-DOT_MUD_URL='https://localhost:3001/mud.json'")
     else
         otbr_options+=("-DOTBR_MUD_FORWARDER=OFF")
         otbr_options+=("-DOT_MUDTHREAD=OFF")
