@@ -35,6 +35,7 @@
 #define OTBR_MUD_FORWARDER_HPP_
 
 #include "ncp/rcp_host.hpp"
+#include "common/types.hpp"
 
 #include <openthread/message.h>
 #include <openthread/ip6.h>
@@ -52,7 +53,7 @@ namespace MUD {
          * 
          * @param[in]   aInstance   The OpenThread Instance.
          */
-        MudForwarder(otbr::Ncp::RcpHost &aHost);
+        MudForwarder(Ncp::RcpHost &aHost);
 
         otError Init();
         otError Deinit();
@@ -60,12 +61,14 @@ namespace MUD {
     private:
         otError InitSocket();
         otError RegisterService();
+        bool IsMudServiceRegistered();
         static void HandleMUDNewDeviceMessage(void *aContext, otMessage *aMessage, const otMessageInfo *aMessageInfo);
         void HandleMUDNewDeviceMessage(otMessage *aMessage, const otMessageInfo *aMessageInfo);
         void HandleThreadStateChanged(otChangedFlags aFlags);
 
-        otUdpSocket mSocket;
-        otbr::Ncp::RcpHost &mHost;
+        otUdpSocket   mSocket;
+        Ncp::RcpHost &mHost;
+        Ip6Address mMudManagerIp;
     };
 
 } // Namespace MUD

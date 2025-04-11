@@ -43,6 +43,9 @@
 #include <common/tlv.hpp>
 #include <openthread/mud.h>
 
+#ifndef MUD_MANAGER_ADDRESS
+#define MUD_MANAGER_ADDRESS "fd99:aaaa:bbbb:100::1"
+#endif
 
 namespace otbr {
 namespace MUD {
@@ -50,6 +53,9 @@ namespace MUD {
 MudForwarder::MudForwarder(otbr::Ncp::RcpHost &aHost)
     : mHost(aHost)
 {
+    const char * ipaddr = MUD_MANAGER_ADDRESS;
+    mMudManagerIp = Ip6Address(ipaddr);
+
     // Initialize a socket
     otbrLogInfo("Starting MUD Forwarder");
 
@@ -58,13 +64,10 @@ MudForwarder::MudForwarder(otbr::Ncp::RcpHost &aHost)
 
 otError MudForwarder::Init()
 {
-    otError error;
-
+    otError     error   = OT_ERROR_NONE;
     SuccessOrExit(error = MudForwarder::InitSocket());
 
     mHost.AddThreadStateChangedCallback([this](otChangedFlags aFlags) { HandleThreadStateChanged(aFlags);});
-
-    // error = MudForwarder::RegisterService();
 
 exit:
     return error;
@@ -92,45 +95,31 @@ exit:
 
 otError MudForwarder::RegisterService()
 {
-    otError                 error = OT_ERROR_NONE;
-    const otNetifAddress   *addresses;
-    // const size_t            ip6StringSize = OT_IP6_ADDRESS_STRING_SIZE;
-    otServiceConfig         config;
-    std::string             serviceName("MUD_Forwarder");
-    otbr::Ip6Address        address;
+    otError         error = OT_ERROR_NONE;
+    otServiceConfig config;
+    std::string     serviceName("MUD_Forwarder"); // TODO: should be a service ID specified in OpenThread API
 
-    // Advertize service in network
-    otbrLogInfo("Advertizing service...");
+    if (IsMudServiceRegistered()) {
+        ExitNow(otbrLogInfo("MUD_Forwarder service is already registered."));
+    }
 
     // Set config ServiceData
     config.mEnterpriseNumber = 44970; // OpenThread IANA enterprise number
     config.mServerConfig.mStable = true;
     sprintf(reinterpret_cast<char*>(config.mServiceData), serviceName.c_str());
     config.mServiceDataLength = serviceName.length() + 1;
-
-    addresses = otIp6GetUnicastAddresses(mHost.GetInstance());
-    for (const otNetifAddress *addr = addresses; addr; addr = addr->mNext)
-    {
-        // A meshlocal, non RLOC address should be reachable by all devices, regardless of topology changes
-        if (addr->mMeshLocal && !addr->mRloc) {
-            address = Ip6Address(addr->mAddress);
-            otbrLogInfo("valid address found! %s", address.ToString().c_str());
-
-            for (u_int8_t i = 0; i < sizeof(address.m8); i++) {
-                config.mServerConfig.mServerData[i] = address.m8[i];
-            }
-
-            config.mServerConfig.mServerData[sizeof(address.m8)] = '\0';
-            config.mServerConfig.mServerDataLength = sizeof(address.m8) + 1;
-            
-            SuccessOrExit(error = otServerAddService(mHost.GetInstance(), &config));
-            SuccessOrExit(error = otServerRegister(mHost.GetInstance()));
-            otbrLogInfo("Sucessfully registered service");
-            otbrLogInfo("serverdata: %s", reinterpret_cast<char *>(config.mServerConfig.mServerData));
-            
-            ExitNow();
-        }
+    
+    // TODO: this could be better, but it works for now
+    for (u_int8_t i = 0; i < sizeof(mMudManagerIp.m8); i++) {
+        config.mServerConfig.mServerData[i] = mMudManagerIp.m8[i];
     }
+    config.mServerConfig.mServerData[sizeof(mMudManagerIp.m8)] = '\0';
+    config.mServerConfig.mServerDataLength = sizeof(mMudManagerIp.m8) + 1;
+    
+    // Advertize service in network
+    SuccessOrExit(error = otServerAddService(mHost.GetInstance(), &config));
+    SuccessOrExit(error = otServerRegister(mHost.GetInstance()));
+    otbrLogInfo("Registered Mudmanager service: %s", mMudManagerIp.ToString().c_str());
 
 exit:
     return error;
@@ -139,11 +128,20 @@ exit:
 void MudForwarder::HandleThreadStateChanged(otChangedFlags aFlags)
 {
     otError error;
+    otDeviceRole role;
 
-    if (aFlags & (OT_CHANGED_IP6_ADDRESS_ADDED | OT_CHANGED_IP6_ADDRESS_REMOVED)) {
-        error = RegisterService();
-        otbrLogInfo("Updated service registration. response: %d", error);
+    if (aFlags & (OT_CHANGED_THREAD_ROLE)) {
+        role = otThreadGetDeviceRole(mHost.GetInstance());
+        if (role == OT_DEVICE_ROLE_LEADER || role == OT_DEVICE_ROLE_ROUTER) {
+            error = RegisterService();
+            otbrLogInfo("Updated service registration. response: %d", error);
+        }
     }
+}
+
+bool MudForwarder::IsMudServiceRegistered() {
+    // TODO: check if service alread exists
+    return false;
 }
 
 otError MudForwarder::Deinit()
@@ -176,7 +174,7 @@ exit:
 
 void MudForwarder::HandleMUDNewDeviceMessage(otMessage *aMessage, const otMessageInfo *aMessageInfo)
 {
-    // TODO: not just log, actually do smt with the message
+    // CHECK: this should never be triggered again.
     const size_t    buflen      = 1500;
     u_int8_t        buf[buflen];
     uint16_t        length;
