@@ -106,7 +106,7 @@ otError MudForwarder::RegisterService()
     // Set config ServiceData
     config.mEnterpriseNumber = 44970; // OpenThread IANA enterprise number
     config.mServerConfig.mStable = true;
-    sprintf(reinterpret_cast<char*>(config.mServiceData), serviceName.c_str());
+    sprintf(reinterpret_cast<char*>(config.mServiceData), "%s", serviceName.c_str());
     config.mServiceDataLength = serviceName.length() + 1;
     
     // TODO: this could be better, but it works for now
