@@ -79,6 +79,7 @@ enum
     OTBR_OPT_AUTO_ATTACH,
     OTBR_OPT_REST_LISTEN_ADDR,
     OTBR_OPT_REST_LISTEN_PORT,
+    OTBR_OPT_MUD_MANAGER_IP          = 'M',
 };
 
 #ifndef OTBR_ENABLE_PLATFORM_ANDROID
@@ -99,6 +100,7 @@ static const struct option kOptions[] = {
     {"auto-attach", optional_argument, nullptr, OTBR_OPT_AUTO_ATTACH},
     {"rest-listen-address", required_argument, nullptr, OTBR_OPT_REST_LISTEN_ADDR},
     {"rest-listen-port", required_argument, nullptr, OTBR_OPT_REST_LISTEN_PORT},
+    {"mud-manager-ip", optional_argument, nullptr, OTBR_OPT_MUD_MANAGER_IP},
     {0, 0, 0, 0}};
 
 static bool ParseInteger(const char *aStr, long &aOutResult)
@@ -142,7 +144,7 @@ static std::vector<char *> AppendAutoAttachDisableArg(int argc, char *argv[])
 static void PrintHelp(const char *aProgramName)
 {
     fprintf(stderr,
-            "Usage: %s [-I interfaceName] [-B backboneIfName] [-d DEBUG_LEVEL] [-v] [-s] [--auto-attach[=0/1]] "
+            "Usage: %s [-I interfaceName] [-M mudManagerIp] [-B backboneIfName] [-d DEBUG_LEVEL] [-v] [-s] [--auto-attach[=0/1]] "
             "RADIO_URL [RADIO_URL]\n"
             "    --auto-attach defaults to 1\n"
             "    -s disables syslog and prints to standard out\n",
@@ -211,6 +213,7 @@ static int realmain(int argc, char *argv[])
     std::vector<const char *> radioUrls;
     std::vector<const char *> backboneInterfaceNames;
     long                      parseResult;
+    const char               *mudManagerIp;
 
     std::set_new_handler(OnAllocateFailed);
 
@@ -270,6 +273,9 @@ static int realmain(int argc, char *argv[])
             restListenAddress = optarg;
             break;
 
+        case OTBR_OPT_MUD_MANAGER_IP:
+            mudManagerIp = optarg;
+            break;
         case OTBR_OPT_REST_LISTEN_PORT:
             VerifyOrExit(ParseInteger(optarg, parseResult), ret = EXIT_FAILURE);
             restListenPort = parseResult;
@@ -306,7 +312,7 @@ static int realmain(int argc, char *argv[])
 
     {
         otbr::Application app(interfaceName, backboneInterfaceNames, radioUrls, enableAutoAttach, restListenAddress,
-                              restListenPort);
+                              restListenPort, mudManagerIp);
 
         gApp = &app;
         app.Init();

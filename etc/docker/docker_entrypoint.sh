@@ -63,6 +63,11 @@ function parse_args()
                 shift
                 shift
                 ;;
+            --mud-manager | -M)
+                MUD_MANAGER_IP=$2
+                shift
+                shift
+                ;;
             *)
                 shift
                 ;;
@@ -87,6 +92,7 @@ parse_args "$@"
 [ -n "$BACKBONE_INTERFACE" ] || BACKBONE_INTERFACE="eth0"
 [ -n "$NAT64_PREFIX" ] || NAT64_PREFIX="64:ff9b::/96"
 [ -n "$DEBUG_LEVEL" ] || DEBUG_LEVEL="7"
+[ -n "$MUD_MANAGER_IP" ] || MUD_MANAGER_IP="fd99:aaaa:bbbb:100::1"
 
 echo "RADIO_URL:" $RADIO_URL
 echo "TREL_URL:" "$TREL_URL"
@@ -94,6 +100,7 @@ echo "TUN_INTERFACE_NAME:" $TUN_INTERFACE_NAME
 echo "BACKBONE_INTERFACE: $BACKBONE_INTERFACE"
 echo "NAT64_PREFIX:" $NAT64_PREFIX
 echo "DEBUG_LEVEL:" $DEBUG_LEVEL
+echo "MUD_MANAGER_IP:" $MUD_MANAGER_IP
 
 NAT64_PREFIX=${NAT64_PREFIX/\//\\\/}
 TAYGA_CONF=/etc/tayga.conf
@@ -103,7 +110,7 @@ BIND_CONF_OPTIONS=/etc/bind/named.conf.options
 ! test -f $BIND_CONF_OPTIONS || sed -i "s/dns64.*$/dns64 $NAT64_PREFIX {};/" $BIND_CONF_OPTIONS
 sed -i "s/$INFRA_IF_NAME/$BACKBONE_INTERFACE/" /etc/sysctl.d/60-otbr-accept-ra.conf
 
-echo "OTBR_AGENT_OPTS=\"-I $TUN_INTERFACE_NAME -B $BACKBONE_INTERFACE -d${DEBUG_LEVEL} $RADIO_URL $TREL_URL\"" >/etc/default/otbr-agent
+echo "OTBR_AGENT_OPTS=\"-I $TUN_INTERFACE_NAME -M $MUD_MANAGER_IP -B $BACKBONE_INTERFACE -d${DEBUG_LEVEL} $RADIO_URL $TREL_URL\"" >/etc/default/otbr-agent
 echo "OTBR_WEB_OPTS=\"-I $TUN_INTERFACE_NAME -d${DEBUG_LEVEL} -p 80\"" >/etc/default/otbr-web
 
 /app/script/server

@@ -107,7 +107,8 @@ public:
                          const std::vector<const char *> &aRadioUrls,
                          bool                             aEnableAutoAttach,
                          const std::string               &aRestListenAddress,
-                         int                              aRestListenPort);
+                         int                              aRestListenPort,
+                         const std::string               &aMudManagerIp);
 
     /**
      * This method initializes the Application instance.
@@ -259,7 +260,7 @@ private:
 
     static void HandleSignal(int aSignal);
 
-    void CreateRcpMode(const std::string &aRestListenAddress, int aRestListenPort);
+    void CreateRcpMode(const std::string &aRestListenAddress, int aRestListenPort, const std::string &aMudMangerIp);
     void InitRcpMode(void);
     void DeinitRcpMode(void);
 

@@ -49,22 +49,20 @@
 
 namespace otbr {
 namespace MUD {
-
-MudForwarder::MudForwarder(otbr::Ncp::RcpHost &aHost)
+    MudForwarder::MudForwarder(otbr::Ncp::RcpHost &aHost, const std::string &aMudManagerIp)
     : mHost(aHost)
-{
-    const char * ipaddr = MUD_MANAGER_ADDRESS;
-    mMudManagerIp = Ip6Address(ipaddr);
+    {
+        mMudManagerIp = Ip6Address(aMudManagerIp.c_str());
+        
+        // Initialize a socket
+        otbrLogInfo("Starting MUD Forwarder");
+        
+        memset(&mSocket, 0, sizeof(mSocket));
+    }
 
-    // Initialize a socket
-    otbrLogInfo("Starting MUD Forwarder");
-
-    memset(&mSocket, 0, sizeof(mSocket));
-}
-
-otError MudForwarder::Init()
-{
-    otError     error   = OT_ERROR_NONE;
+    otError MudForwarder::Init()
+    {
+        otError     error   = OT_ERROR_NONE;
     SuccessOrExit(error = MudForwarder::InitSocket());
 
     mHost.AddThreadStateChangedCallback([this](otChangedFlags aFlags) { HandleThreadStateChanged(aFlags);});
@@ -129,6 +127,8 @@ void MudForwarder::HandleThreadStateChanged(otChangedFlags aFlags)
 {
     otError error;
     otDeviceRole role;
+
+    otbrLogInfo("testing mud inclusion: %d", OT_MUD_TEST);
 
     if (aFlags & (OT_CHANGED_THREAD_ROLE)) {
         role = otThreadGetDeviceRole(mHost.GetInstance());

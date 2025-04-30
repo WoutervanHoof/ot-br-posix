@@ -41,6 +41,7 @@
 #include <openthread/ip6.h>
 #include <openthread/udp.h>
 #include <openthread/error.h>
+#include <openthread/mud.h>
 
 namespace otbr {
 namespace MUD {
@@ -53,7 +54,7 @@ namespace MUD {
          * 
          * @param[in]   aInstance   The OpenThread Instance.
          */
-        MudForwarder(Ncp::RcpHost &aHost);
+        MudForwarder(Ncp::RcpHost &aHost, const std::string &aMudManagerIp);
 
         otError Init();
         otError Deinit();

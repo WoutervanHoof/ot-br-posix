@@ -52,7 +52,8 @@ Application::Application(const std::string               &aInterfaceName,
                          const std::vector<const char *> &aRadioUrls,
                          bool                             aEnableAutoAttach,
                          const std::string               &aRestListenAddress,
-                         int                              aRestListenPort)
+                         int                              aRestListenPort,
+                         const std::string               &aMudManagerIp)
     : mInterfaceName(aInterfaceName)
 #if __linux__
     , mInfraLinkSelector(aBackboneInterfaceNames)
@@ -74,7 +75,7 @@ Application::Application(const std::string               &aInterfaceName,
 {
     if (mHost->GetCoprocessorType() == OT_COPROCESSOR_RCP)
     {
-        CreateRcpMode(aRestListenAddress, aRestListenPort);
+        CreateRcpMode(aRestListenAddress, aRestListenPort, aMudManagerIp);
     }
 }
 
@@ -215,7 +216,7 @@ void Application::HandleSignal(int aSignal)
     signal(aSignal, SIG_DFL);
 }
 
-void Application::CreateRcpMode(const std::string &aRestListenAddress, int aRestListenPort)
+void Application::CreateRcpMode(const std::string &aRestListenAddress, int aRestListenPort, const std::string &aMudManagerIp)
 {
     otbr::Ncp::RcpHost &rcpHost = static_cast<otbr::Ncp::RcpHost &>(*mHost);
 #if OTBR_ENABLE_BORDER_AGENT
@@ -243,11 +244,12 @@ void Application::CreateRcpMode(const std::string &aRestListenAddress, int aRest
     mVendorServer = vendor::VendorServer::newInstance(*this);
 #endif
 #if OTBR_ENABLE_MUD_FORWARDER
-    mMudForwarder = MakeUnique<MUD::MudForwarder>(rcpHost);
+    mMudForwarder = MakeUnique<MUD::MudForwarder>(rcpHost, aMudManagerIp);
 #endif
 
     OT_UNUSED_VARIABLE(aRestListenAddress);
     OT_UNUSED_VARIABLE(aRestListenPort);
+    OT_UNUSED_VARIABLE(aMudManagerIp);
 }
 
 void Application::InitRcpMode(void)
