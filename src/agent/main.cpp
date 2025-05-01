@@ -311,6 +311,7 @@ static int realmain(int argc, char *argv[])
     }
 
     {
+        otbrLogNotice("MUDManager IP: %s", mudManagerIp);
         otbr::Application app(interfaceName, backboneInterfaceNames, radioUrls, enableAutoAttach, restListenAddress,
                               restListenPort, mudManagerIp);
 

@@ -43,26 +43,23 @@
 #include <common/tlv.hpp>
 #include <openthread/mud.h>
 
-#ifndef MUD_MANAGER_ADDRESS
-#define MUD_MANAGER_ADDRESS "fd99:aaaa:bbbb:100::1"
-#endif
-
 namespace otbr {
 namespace MUD {
-    MudForwarder::MudForwarder(otbr::Ncp::RcpHost &aHost, const std::string &aMudManagerIp)
-    : mHost(aHost)
-    {
-        mMudManagerIp = Ip6Address(aMudManagerIp.c_str());
-        
-        // Initialize a socket
-        otbrLogInfo("Starting MUD Forwarder");
-        
-        memset(&mSocket, 0, sizeof(mSocket));
-    }
+MudForwarder::MudForwarder(otbr::Ncp::RcpHost &aHost, const std::string &aMudManagerIp)
+: mHost(aHost)
+{
+    mMudManagerIp = Ip6Address(aMudManagerIp.c_str());
+    
+    // Initialize a socket
+    otbrLogInfo("Starting MUD Forwarder for manager %s", aMudManagerIp.c_str());
+    
+    memset(&mSocket, 0, sizeof(mSocket));
+}
 
-    otError MudForwarder::Init()
-    {
-        otError     error   = OT_ERROR_NONE;
+otError MudForwarder::Init()
+{
+    otError error = OT_ERROR_NONE;
+
     SuccessOrExit(error = MudForwarder::InitSocket());
 
     mHost.AddThreadStateChangedCallback([this](otChangedFlags aFlags) { HandleThreadStateChanged(aFlags);});
@@ -127,8 +124,6 @@ void MudForwarder::HandleThreadStateChanged(otChangedFlags aFlags)
 {
     otError error;
     otDeviceRole role;
-
-    otbrLogInfo("testing mud inclusion: %d", OT_MUD_TEST);
 
     if (aFlags & (OT_CHANGED_THREAD_ROLE)) {
         role = otThreadGetDeviceRole(mHost.GetInstance());
