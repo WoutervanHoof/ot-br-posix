@@ -100,7 +100,7 @@ static const struct option kOptions[] = {
     {"auto-attach", optional_argument, nullptr, OTBR_OPT_AUTO_ATTACH},
     {"rest-listen-address", required_argument, nullptr, OTBR_OPT_REST_LISTEN_ADDR},
     {"rest-listen-port", required_argument, nullptr, OTBR_OPT_REST_LISTEN_PORT},
-    {"mud-manager-ip", optional_argument, nullptr, OTBR_OPT_MUD_MANAGER_IP},
+    {"mud-manager-ip", required_argument, nullptr, OTBR_OPT_MUD_MANAGER_IP},
     {0, 0, 0, 0}};
 
 static bool ParseInteger(const char *aStr, long &aOutResult)
@@ -217,7 +217,7 @@ static int realmain(int argc, char *argv[])
 
     std::set_new_handler(OnAllocateFailed);
 
-    while ((opt = getopt_long(argc, argv, "B:d:hI:VvsM", kOptions, nullptr)) != -1)
+    while ((opt = getopt_long(argc, argv, "B:d:hI:VvsM:", kOptions, nullptr)) != -1)
     {
         switch (opt)
         {
