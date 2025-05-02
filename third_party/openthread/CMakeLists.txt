@@ -73,6 +73,13 @@ set(OT_TREL ${OTBR_TREL} CACHE STRING "enable TREL" FORCE)
 set(OT_UDP_FORWARD OFF CACHE STRING "disable udp forward" FORCE)
 set(OT_UPTIME ON CACHE STRING "enable uptime" FORCE)
 
+if(OTBR_MUDMANAGER)
+  set(OT_MUDTHREAD ON CACHE BOOL "Enables MUDThread on Opentrhead" FORCE)
+endif()
+if(CONFIG_MUD_URL)
+  set(OT_MUD_URL ${CONFIG_MUD_URL} CACHE STRING "Sets mud url" FORCE)
+endif()
+
 if (OTBR_SRP_ADVERTISING_PROXY)
     set(OT_SRP_SERVER ON CACHE STRING "enable SRP server" FORCE)
     set(OT_EXTERNAL_HEAP ON CACHE STRING "enable external heap" FORCE)
