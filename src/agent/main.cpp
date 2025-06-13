@@ -213,7 +213,7 @@ static int realmain(int argc, char *argv[])
     std::vector<const char *> radioUrls;
     std::vector<const char *> backboneInterfaceNames;
     long                      parseResult;
-    const char               *mudManagerIp;
+    const char               *mudManagerIp      = "";
 
     std::set_new_handler(OnAllocateFailed);
 

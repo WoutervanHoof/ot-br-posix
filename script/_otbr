@@ -118,7 +118,7 @@ otbr_install()
     if with MUD_FORWARDER; then
         otbr_options+=("-DOTBR_MUD_FORWARDER=ON")
         otbr_options+=("-DOT_MUDTHREAD=ON")
-        otbr_options+=("-DOT_MUD_URL='https://localhost:3001/mud.json'")
+        otbr_options+=("-DOT_MUD_URL='http://mudfileserver:3000/.json'")
     else
         otbr_options+=("-DOTBR_MUD_FORWARDER=OFF")
         otbr_options+=("-DOT_MUDTHREAD=OFF")
